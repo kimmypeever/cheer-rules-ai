@@ -3,3 +3,4 @@ vectorstore/
 __pycache__/
 *.pyc
 .venv/
+.venv-1
