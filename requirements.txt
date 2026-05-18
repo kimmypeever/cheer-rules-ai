@@ -4,6 +4,7 @@ openai==1.78.0
 
 # PDF parsing
 pypdf==5.1.0
+pdfplumber==0.11.4
 
 # Pose estimation
 mediapipe==0.10.20
