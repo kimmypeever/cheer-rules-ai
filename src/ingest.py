@@ -47,10 +47,11 @@ _CATEGORIES = frozenset({"TUMBLING", "STUNTS", "PYRAMIDS", "DISMOUNTS", "TOSSES"
 
 
 def _detect_category(chunk: str) -> str | None:
-    """Return the main rulebook category if the chunk's first line starts with one."""
+    """Return the main rulebook category if the chunk's first line contains one."""
     first_line = chunk.split("\n")[0].upper()
     for cat in _CATEGORIES:
-        if first_line.startswith(cat):
+        # Matches "STUNTS — ..." (IASF format) and "LEVEL 2 - STUNTS" (skills list format)
+        if first_line.startswith(cat) or f" {cat}" in first_line or f"-{cat}" in first_line:
             return cat
     return None
 
