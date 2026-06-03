@@ -1,6 +1,6 @@
 # Vector store & embeddings
 chromadb==0.5.23
-openai==1.78.0
+google-genai>=1.0.0
 
 # PDF parsing
 pypdf==5.1.0
@@ -21,3 +21,7 @@ pydantic-settings==2.9.1
 
 # Utilities
 python-dotenv==1.1.0
+
+# Evaluation
+ragas
+datasets

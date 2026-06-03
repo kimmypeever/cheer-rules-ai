@@ -79,6 +79,9 @@ export default function Home() {
         body: JSON.stringify({ query }),
       });
       const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.detail ?? "Unknown error");
+      }
       setMessages((prev) => [
         ...prev,
         {
@@ -88,13 +91,13 @@ export default function Home() {
           category: data.category ?? null,
         },
       ]);
-    } catch {
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Unknown error";
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          content:
-            "Could not reach the rules engine. Make sure the API server is running:\n\n  uvicorn api:app --reload",
+          content: `The rules engine returned an error — please try again.\n\n${msg}`,
           sources: [],
           category: null,
         },

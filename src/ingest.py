@@ -1,5 +1,5 @@
 """
-Load rulebook PDFs → chunk → embed with OpenAI → persist to ChromaDB.
+Load rulebook PDFs → chunk → embed with Gemini → persist to ChromaDB.
 
 Run directly:
     python src/ingest.py                  # ingest any new PDFs
@@ -15,7 +15,7 @@ from pathlib import Path
 
 import chromadb
 import pdfplumber
-from chromadb.utils import embedding_functions
+from google import genai
 from dotenv import load_dotenv
 
 
@@ -25,8 +25,22 @@ RULEBOOKS_DIR = Path("data/rulebooks")
 VECTORSTORE_DIR = Path("vectorstore")
 COLLECTION_NAME = "cheer_rules"
 
+EMBED_MODEL = "gemini-embedding-2"
+
 CHUNK_SIZE = 900      # characters; ~200-220 tokens — keeps rule clauses intact
 CHUNK_OVERLAP = 120   # carry context across chunk boundaries
+
+
+class _GeminiEmbedder:
+    """Custom ChromaDB embedding function using the google-genai SDK."""
+    def __init__(self, api_key: str):
+        self._client = genai.Client(api_key=api_key)
+
+    def __call__(self, input):  # noqa: A002
+        return [
+            self._client.models.embed_content(model=EMBED_MODEL, contents=text).embeddings[0].values
+            for text in input
+        ]
 
 # Patterns that signal a hard rule boundary — prefer splitting before these.
 # NOTE: "LEVEL\s+\d" is intentionally excluded here because our table formatter
@@ -279,17 +293,16 @@ def _chunk_id(source: str, page: int, section: int, chunk_idx: int) -> str:
 
 
 def ingest(rulebooks_dir: Path = RULEBOOKS_DIR, reset: bool = False) -> None:
-    api_key = os.getenv("OPENAI_API_KEY")
+    api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
-        sys.exit("OPENAI_API_KEY is not set. Add it to .env or your environment.")
+        sys.exit("GEMINI_API_KEY is not set. Add it to .env or your environment.")
 
     pdf_files = sorted(rulebooks_dir.glob("*.pdf"))
     if not pdf_files:
         sys.exit(f"No PDFs found in {rulebooks_dir}/. Drop rulebook PDFs there and re-run.")
 
-    openai_ef = embedding_functions.OpenAIEmbeddingFunction(
+    google_ef = _GeminiEmbedder(
         api_key=api_key,
-        model_name="text-embedding-3-small",
     )
 
     client = chromadb.PersistentClient(path=str(VECTORSTORE_DIR))
@@ -303,7 +316,7 @@ def ingest(rulebooks_dir: Path = RULEBOOKS_DIR, reset: bool = False) -> None:
 
     collection = client.get_or_create_collection(
         name=COLLECTION_NAME,
-        embedding_function=openai_ef,
+        embedding_function=google_ef,
         metadata={"hnsw:space": "cosine"},
     )
 
@@ -343,11 +356,11 @@ def ingest(rulebooks_dir: Path = RULEBOOKS_DIR, reset: bool = False) -> None:
             print("  → Already fully indexed, skipping.")
             continue
 
-        print(f"  {len(ids)} chunks ready — sending to OpenAI for embedding …")
+        print(f"  {len(ids)} chunks ready — embedding with Gemini …")
         batch = 100
+        batch_total = (len(ids) + batch - 1) // batch
         for i in range(0, len(ids), batch):
             batch_num = i // batch + 1
-            batch_total = (len(ids) + 99) // 100
             print(f"  Batch {batch_num}/{batch_total} ({min(i + batch, len(ids))} chunks) …")
             collection.add(
                 ids=ids[i : i + batch],

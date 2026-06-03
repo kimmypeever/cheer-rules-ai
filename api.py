@@ -6,6 +6,7 @@ Run with:
 """
 
 import json
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -17,9 +18,13 @@ from src.retriever import ask
 
 app = FastAPI(title="Cheer Rules AI")
 
+_origins = ["http://localhost:3000"]
+if _prod_origin := os.getenv("ALLOWED_ORIGIN"):
+    _origins.append(_prod_origin)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=_origins,
     allow_methods=["POST"],
     allow_headers=["*"],
 )
@@ -42,7 +47,10 @@ class FeedbackRequest(BaseModel):
 def ask_question(body: QuestionRequest):
     if not body.query.strip():
         raise HTTPException(status_code=400, detail="Query cannot be empty.")
-    return ask(body.query)
+    try:
+        return ask(body.query)
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=str(e))
 
 
 @app.post("/feedback")

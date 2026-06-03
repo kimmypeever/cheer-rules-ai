@@ -11,19 +11,31 @@ import sys
 from pathlib import Path
 
 import chromadb
-from chromadb.utils import embedding_functions
+from google import genai
+from google.genai import types as genai_types
 from dotenv import load_dotenv
-from openai import OpenAI
 
 load_dotenv()
 
 VECTORSTORE_DIR = Path("vectorstore")
 COLLECTION_NAME = "cheer_rules"
-EMBED_MODEL = "text-embedding-3-small"
-CHAT_MODEL = "gpt-4o-mini"
+EMBED_MODEL = "gemini-embedding-2"
+CHAT_MODEL = "gemini-2.5-flash"
 N_RESULTS = 8  # number of rulebook chunks to retrieve per query
 
 _CATEGORIES = frozenset({"TUMBLING", "STUNTS", "PYRAMIDS", "DISMOUNTS", "TOSSES"})
+
+
+class _GeminiEmbedder:
+    """Custom ChromaDB embedding function using the google-genai SDK."""
+    def __init__(self, api_key: str):
+        self._client = genai.Client(api_key=api_key)
+
+    def __call__(self, input):  # noqa: A002
+        return [
+            self._client.models.embed_content(model=EMBED_MODEL, contents=text).embeddings[0].values
+            for text in input
+        ]
 
 _LEVEL7_RE = re.compile(r"\blevel\s*7\b", re.IGNORECASE)
 _LEVEL16_RE = re.compile(r"\blevel\s*[1-6]\b", re.IGNORECASE)
@@ -131,41 +143,35 @@ def _detect_level_group(query: str) -> str | None:
     return None
 
 
-def _classify_category(query: str, client: OpenAI) -> str | None:
-    resp = client.chat.completions.create(
+def _classify_category(query: str, client: genai.Client) -> str | None:
+    resp = client.models.generate_content(
         model=CHAT_MODEL,
-        messages=[
-            {"role": "system", "content": _CLASSIFY_PROMPT},
-            {"role": "user", "content": query},
-        ],
-        temperature=0,
-        max_tokens=10,
+        contents=query,
+        config=genai_types.GenerateContentConfig(
+            system_instruction=_CLASSIFY_PROMPT,
+            temperature=0,
+            max_output_tokens=10,
+        ),
     )
-    cat = resp.choices[0].message.content.strip().upper()
+    cat = resp.text.strip().upper()
     return cat if cat in _CATEGORIES else None
 
 
-def _get_collection():
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        sys.exit("OPENAI_API_KEY is not set. Add it to .env")
-
-    openai_ef = embedding_functions.OpenAIEmbeddingFunction(
-        api_key=api_key,
-        model_name=EMBED_MODEL,
-    )
-    client = chromadb.PersistentClient(path=str(VECTORSTORE_DIR))
-    return client.get_collection(name=COLLECTION_NAME, embedding_function=openai_ef)
+def _get_collection(api_key: str):
+    embedder = _GeminiEmbedder(api_key=api_key)
+    chroma = chromadb.PersistentClient(path=str(VECTORSTORE_DIR))
+    return chroma.get_collection(name=COLLECTION_NAME, embedding_function=embedder)
 
 
 def retrieve(
     query: str,
+    api_key: str,
     n_results: int = N_RESULTS,
     category: str | None = None,
     level_group: str | None = None,
 ) -> list[dict]:
     """Return the top-n most relevant rulebook chunks for a query."""
-    collection = _get_collection()
+    collection = _get_collection(api_key)
 
     conditions = []
     if category:
@@ -246,23 +252,27 @@ _REWRITE_PROMPT = (
 )
 
 
-def _rewrite_query(query: str, client: OpenAI) -> str:
+def _rewrite_query(query: str, client: genai.Client) -> str:
     """Rephrase the user's question into official rulebook terminology for better retrieval."""
-    resp = client.chat.completions.create(
+    resp = client.models.generate_content(
         model=CHAT_MODEL,
-        messages=[
-            {"role": "system", "content": _REWRITE_PROMPT},
-            {"role": "user", "content": query},
-        ],
-        temperature=0,
-        max_tokens=80,
+        contents=query,
+        config=genai_types.GenerateContentConfig(
+            system_instruction=_REWRITE_PROMPT,
+            temperature=0,
+            max_output_tokens=80,
+        ),
     )
-    return resp.choices[0].message.content.strip()
+    return resp.text.strip()
 
 
 def ask(query: str) -> dict:
-    """Retrieve relevant chunks and ask GPT to answer the legality question."""
-    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    """Retrieve relevant chunks and ask Gemini to answer the legality question."""
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        sys.exit("GEMINI_API_KEY is not set. Add it to .env")
+    client = genai.Client(api_key=api_key)
+
     is_definition = bool(_DEFINITION_RE.search(query))
 
     if is_definition:
@@ -286,7 +296,7 @@ def ask(query: str) -> dict:
             if not re.search(r"\b(pyramid|tumbling|toss)\b", query, re.IGNORECASE):
                 category = "STUNTS"
 
-    chunks = retrieve(search_query, n_results=n_results, category=category, level_group=level_group)
+    chunks = retrieve(search_query, api_key=api_key, n_results=n_results, category=category, level_group=level_group)
 
     if is_definition and chunks:
         # Glossary entries are self-contained on one page. Focus on all chunks from the
@@ -307,13 +317,13 @@ def ask(query: str) -> dict:
 
         context = "\n\n---\n\n".join(_chunk_label(c) for c in chunks)
 
-    response = client.chat.completions.create(
+    response = client.models.generate_content(
         model=CHAT_MODEL,
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": f"RULEBOOK EXCERPTS:\n{context}\n\nQUESTION: {query}"},
-        ],
-        temperature=0,  # deterministic — rules have right/wrong answers
+        contents=f"RULEBOOK EXCERPTS:\n{context}\n\nQUESTION: {query}",
+        config=genai_types.GenerateContentConfig(
+            system_instruction=SYSTEM_PROMPT,
+            temperature=0,
+        ),
     )
 
     return {
@@ -321,7 +331,7 @@ def ask(query: str) -> dict:
         "search_query": search_query,
         "category": category,
         "level_group": level_group,
-        "answer": response.choices[0].message.content,
+        "answer": response.text,
         "sources": [{"source": c["source"], "page": c["page"], "score": c["score"]} for c in chunks],
     }
 
