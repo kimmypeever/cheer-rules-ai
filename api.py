@@ -30,6 +30,24 @@ app.add_middleware(
 )
 
 FEEDBACK_LOG = Path("feedback.jsonl")
+FEEDBACK_BUCKET = os.getenv("FEEDBACK_BUCKET")
+_FEEDBACK_BLOB = "feedback.jsonl"
+
+
+def _write_feedback(entry: dict) -> None:
+    line = json.dumps(entry) + "\n"
+    if FEEDBACK_BUCKET:
+        from google.cloud import storage
+        client = storage.Client()
+        blob = client.bucket(FEEDBACK_BUCKET).blob(_FEEDBACK_BLOB)
+        try:
+            existing = blob.download_as_text(encoding="utf-8")
+        except Exception:
+            existing = ""
+        blob.upload_from_string(existing + line, content_type="text/plain")
+    else:
+        with FEEDBACK_LOG.open("a", encoding="utf-8") as f:
+            f.write(line)
 
 
 class QuestionRequest(BaseModel):
@@ -64,6 +82,5 @@ def submit_feedback(body: FeedbackRequest):
         "answer": body.answer,
         "note": body.note,
     }
-    with FEEDBACK_LOG.open("a", encoding="utf-8") as f:
-        f.write(json.dumps(entry) + "\n")
+    _write_feedback(entry)
     return {"status": "ok"}

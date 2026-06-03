@@ -10,6 +10,9 @@ pdfplumber==0.11.4
 mediapipe==0.10.20
 opencv-python==4.10.0.84
 
+# Cloud storage
+google-cloud-storage>=2.0.0
+
 # API
 fastapi==0.115.12
 uvicorn[standard]==0.34.2

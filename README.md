@@ -220,6 +220,7 @@ This is baked in at build time. If the Cloud Run URL ever changes, update this v
 | `GEMINI_API_KEY` | `.env` (local) / Cloud Run env var | Google Gemini API key |
 | `ALLOWED_ORIGIN` | Cloud Run env var | Frontend URL for CORS (e.g. `https://cheer-rules-ai.vercel.app`) |
 | `NEXT_PUBLIC_API_URL` | Vercel env var | Cloud Run backend URL |
+| `FEEDBACK_BUCKET` | Cloud Run env var | GCS bucket name for feedback storage (`cheer-rules-feedback-456274226198`) |
 
 ---
 
@@ -264,9 +265,21 @@ Appends an entry to `feedback.jsonl` on the server.
 
 ## Feedback
 
-The UI includes thumbs up/down buttons on every response. Ratings are stored in `feedback.jsonl` with the question, answer, timestamp, and rating.
+The UI includes thumbs up/down buttons on every response. Ratings are stored in a Google Cloud Storage bucket (`cheer-rules-feedback-456274226198`) as `feedback.jsonl`, so they persist across redeployments.
 
-> **Note:** `feedback.jsonl` lives inside the Cloud Run container and is lost on redeployment. To preserve feedback long-term, download it before redeploying or add a `/feedback/export` endpoint.
+**Download feedback locally:**
+
+```powershell
+gsutil cp gs://cheer-rules-feedback-456274226198/feedback.jsonl .
+```
+
+**View it:**
+
+```powershell
+cat feedback.jsonl
+```
+
+Each line is a JSON object with `timestamp`, `rating` (`"good"` or `"bad"`), `question`, and `answer`.
 
 ---
 
