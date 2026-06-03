@@ -1,0 +1,16 @@
+.venv/
+.venv-1/
+.env
+.env.*
+frontend/
+data/
+notebooks/
+tests/
+__pycache__/
+*.pyc
+*.pyo
+.git/
+debug_*.py
+eval.py
+results.json
+feedback.jsonl
