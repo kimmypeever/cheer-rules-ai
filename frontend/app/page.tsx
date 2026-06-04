@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Send, ThumbsUp, ThumbsDown, BookOpen, ArrowRight } from "lucide-react";
 
 type Source = { source: string; page: number; score: number };
 
@@ -21,10 +21,10 @@ type Message = UserMessage | AssistantMessage;
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 const EXAMPLE_QUESTIONS = [
-  { emoji: "🧺", text: "Is a basket toss legal at Level 3?" },
-  { emoji: "🚁", text: "What level can I do a helicopter?" },
-  { emoji: "🛡️", text: "Can I load to prep without a spotter at Level 1?" },
-  { emoji: "🤸", text: "What tumbling is allowed at Level 2?" },
+  "Is a basket toss legal at Level 3?",
+  "What level can I do a helicopter?",
+  "Can I load to prep without a spotter at Level 1?",
+  "What tumbling is allowed at Level 2?",
 ];
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -133,12 +133,14 @@ export default function Home() {
     <div className="flex flex-col h-screen bg-violet-50">
 
       {/* Header */}
-      <header className="shrink-0 bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-6 py-5 shadow-lg">
+      <header className="shrink-0 bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-6 py-4 shadow-lg">
         <div className="max-w-3xl mx-auto flex items-center gap-3">
-          <span className="text-3xl">📣</span>
+          <div className="bg-white/15 rounded-xl p-2">
+            <BookOpen className="h-5 w-5 text-white" />
+          </div>
           <div>
-            <h1 className="text-2xl font-extrabold tracking-tight">Cheer Rules AI</h1>
-            <p className="text-violet-200 text-sm font-medium">IASF / USASF rulebook assistant</p>
+            <h1 className="text-xl font-bold tracking-tight">Cheer Rules AI</h1>
+            <p className="text-violet-200 text-xs font-medium tracking-wide uppercase">IASF / USASF Rulebook Assistant</p>
           </div>
         </div>
       </header>
@@ -153,15 +155,15 @@ export default function Home() {
                 <p className="text-2xl font-bold text-violet-900">What do you want to know?</p>
                 <p className="text-violet-400 text-sm">Skill legality · Level requirements · Sequences · Definitions</p>
               </div>
-              <div className="flex flex-wrap justify-center gap-3">
-                {EXAMPLE_QUESTIONS.map(({ emoji, text }) => (
+              <div className="flex flex-wrap justify-center gap-2.5">
+                {EXAMPLE_QUESTIONS.map((text) => (
                   <button
                     key={text}
                     onClick={() => submit(text)}
-                    className="flex items-center gap-2 text-sm border-2 border-violet-200 rounded-2xl px-4 py-2 text-violet-700 bg-white font-medium hover:border-violet-400 hover:bg-violet-50 hover:shadow-md transition-all"
+                    className="group flex items-center gap-2 text-sm border border-violet-200 rounded-xl px-4 py-2.5 text-violet-700 bg-white font-medium hover:border-violet-400 hover:bg-violet-50 hover:shadow-sm transition-all"
                   >
-                    <span>{emoji}</span>
                     {text}
+                    <ArrowRight className="h-3.5 w-3.5 text-violet-400 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
                   </button>
                 ))}
               </div>
