@@ -270,7 +270,7 @@ The UI includes thumbs up/down buttons on every response. Ratings are stored in 
 **Download feedback locally:**
 
 ```powershell
-gsutil cp gs://cheer-rules-feedback-456274226198/feedback.jsonl .
+gcloud storage cp gs://cheer-rules-feedback-456274226198/feedback.jsonl .
 ```
 
 **View it:**
