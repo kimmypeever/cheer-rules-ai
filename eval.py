@@ -1,60 +1,66 @@
 """
-Reference-free RAGAS evaluation for the cheer rules RAG pipeline.
+RAGAS evaluation for the cheer rules RAG pipeline.
 
-Metrics (no ground truth needed):
-  - Faithfulness:                    does the answer only say things supported by the retrieved chunks?
-  - LLMContextPrecisionWithoutReference: were the retrieved chunks actually relevant to the question?
+Reference-free metrics (run on all questions):
+  - Faithfulness:                        does the answer only cite things in the retrieved chunks?
+  - LLMContextPrecisionWithoutReference: were the retrieved chunks relevant to the question?
 
-Run with:
+Reference metrics (run only on questions where ground_truth is filled in):
+  - ContextRecall:     do the retrieved chunks contain the information needed to answer?
+  - AnswerCorrectness: does the answer match the ground truth?
+
+Setup:
+  Fill in "ground_truth" values in eval_questions.json using the actual rulebook.
+  Leave ground_truth as "" to skip reference metrics for that question.
+
+Usage:
     python eval.py
-    python eval.py --output results.json   # save scores to file
+    python eval.py --output results.json
+    python eval.py --grounded-only          # only questions with ground_truth filled in
+    python eval.py --include-feedback       # also pull questions from feedback.jsonl
 """
 
 import argparse
 import json
 import os
+import warnings
 from pathlib import Path
+
+warnings.filterwarnings("ignore", category=DeprecationWarning, module="ragas")
 
 from datasets import Dataset
 from dotenv import load_dotenv
-from openai import OpenAI
-
-import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning, module="ragas")
-
+from langchain_google_genai import ChatGoogleGenerativeAI
 from ragas import evaluate
-from ragas.llms import llm_factory
-from ragas.metrics import Faithfulness, LLMContextPrecisionWithoutReference
+from ragas.llms import LangchainLLMWrapper
+from ragas.metrics.collections import (
+    AnswerCorrectness,
+    ContextPrecisionWithoutReference,
+    ContextRecall,
+    Faithfulness,
+)
 
 from src.retriever import ask, retrieve
 
 load_dotenv()
 
+EVAL_QUESTIONS_FILE = Path("eval_questions.json")
 FEEDBACK_LOG = Path("feedback.jsonl")
 
-SEED_QUESTIONS = [
-    # Legality — single skill
-    "Is a back handspring legal at level 2?",
-    "Can I do a full twisting layout at level 5?",
-    "Is an extended liberty legal at level 3?",
-    "Can a level 1 team do a basket toss?",
-    # Legality — sequence
-    "Can I do a round off back handspring back tuck at level 3?",
-    "Is it legal to load to extension without a spotter at level 4?",
-    # Skill listing
-    "What tumbling skills are allowed at level 2?",
-    "What stunts can I do at level 1?",
-    # Definition
-    "What is a bracer?",
-    "What is an inversion?",
-]
+
+def _load_eval_questions() -> list[dict]:
+    if not EVAL_QUESTIONS_FILE.exists():
+        return []
+    with EVAL_QUESTIONS_FILE.open(encoding="utf-8") as f:
+        return json.load(f)
 
 
-def _load_feedback_questions() -> list[str]:
+def _load_feedback_questions() -> list[dict]:
     if not FEEDBACK_LOG.exists():
         return []
+    seen: set[str] = set()
     questions = []
-    with FEEDBACK_LOG.open() as f:
+    with FEEDBACK_LOG.open(encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if not line:
@@ -62,14 +68,15 @@ def _load_feedback_questions() -> list[str]:
             try:
                 entry = json.loads(line)
                 q = entry.get("question", "").strip()
-                if q:
-                    questions.append(q)
+                if q and q.lower() not in seen:
+                    seen.add(q.lower())
+                    questions.append({"question": q, "ground_truth": ""})
             except json.JSONDecodeError:
                 continue
     return questions
 
 
-def _build_sample(question: str) -> dict | None:
+def _build_sample(question: str, ground_truth: str, api_key: str) -> dict | None:
     try:
         result = ask(question)
     except Exception as e:
@@ -79,6 +86,7 @@ def _build_sample(question: str) -> dict | None:
     try:
         chunks = retrieve(
             result.get("search_query", question),
+            api_key=api_key,
             category=result.get("category"),
             level_group=result.get("level_group"),
         )
@@ -88,76 +96,118 @@ def _build_sample(question: str) -> dict | None:
         return None
 
     return {
-        "question": question,
-        "answer": result["answer"],
-        "contexts": contexts,
+        "user_input": question,
+        "response": result["answer"],
+        "retrieved_contexts": contexts,
+        "reference": ground_truth or None,
     }
 
 
-def build_dataset(questions: list[str]) -> Dataset:
-    rows = {"question": [], "answer": [], "contexts": []}
-    for i, q in enumerate(questions, 1):
-        print(f"  [{i}/{len(questions)}] {q[:70]}")
-        sample = _build_sample(q)
-        if sample is not None:
-            rows["question"].append(sample["question"])
-            rows["answer"].append(sample["answer"])
-            rows["contexts"].append(sample["contexts"])
-    return Dataset.from_dict(rows)
+def _run_eval(samples: list[dict], metrics: list, llm, label: str) -> dict:
+    dataset = Dataset.from_dict(
+        {
+            "user_input": [s["user_input"] for s in samples],
+            "response": [s["response"] for s in samples],
+            "retrieved_contexts": [s["retrieved_contexts"] for s in samples],
+            "reference": [s.get("reference") for s in samples],
+        }
+    )
+
+    print(f"\nRunning {label} on {len(dataset)} questions...")
+    result = evaluate(dataset=dataset, metrics=metrics, llm=llm)
+
+    df = result.to_pandas()
+    skip_cols = {"user_input", "response", "retrieved_contexts", "reference",
+                 "question", "answer", "contexts", "ground_truth"}
+    metric_cols = [c for c in df.columns if c not in skip_cols]
+
+    print(f"\n--- {label} Results ---")
+    scores: dict[str, float] = {}
+    for col in metric_cols:
+        score = float(df[col].mean())
+        scores[col] = score
+        print(f"  {col:<50} {score:.3f}")
+
+    return {"scores": scores, "details": df.to_dict(orient="records")}
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Run reference-free RAGAS eval.")
-    parser.add_argument("--output", type=Path, default=None, help="Save scores to this JSON file.")
-    parser.add_argument("--feedback-only", action="store_true", help="Only use questions from feedback.jsonl.")
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Run RAGAS evaluation on the cheer rules pipeline.")
+    parser.add_argument("--output", type=Path, default=None, help="Save all results to this JSON file.")
+    parser.add_argument("--grounded-only", action="store_true",
+                        help="Only evaluate questions that have ground_truth filled in.")
+    parser.add_argument("--include-feedback", action="store_true",
+                        help="Add questions from feedback.jsonl (no ground_truth) to the eval set.")
     args = parser.parse_args()
 
-    feedback_qs = _load_feedback_questions()
-    if args.feedback_only:
-        questions = feedback_qs
-    else:
-        seen = set()
-        questions = []
-        for q in feedback_qs + SEED_QUESTIONS:
-            key = q.lower().strip()
-            if key not in seen:
-                seen.add(key)
-                questions.append(q)
-
-    if not questions:
-        print("No questions found. Add questions to SEED_QUESTIONS or run the app to collect feedback.")
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        print("Error: GEMINI_API_KEY not set. Add it to your .env file.")
         return
 
-    print(f"\nBuilding dataset from {len(questions)} questions...")
-    dataset = build_dataset(questions)
+    # Collect questions
+    questions = _load_eval_questions()
 
-    if len(dataset) == 0:
+    if args.include_feedback:
+        seen = {q["question"].lower() for q in questions}
+        for q in _load_feedback_questions():
+            if q["question"].lower() not in seen:
+                questions.append(q)
+                seen.add(q["question"].lower())
+
+    if not questions:
+        print("No questions found. Populate eval_questions.json or use --include-feedback.")
+        return
+
+    if args.grounded_only:
+        questions = [q for q in questions if q.get("ground_truth", "").strip()]
+        if not questions:
+            print("No questions with ground_truth found. Fill in eval_questions.json first.")
+            return
+
+    # Gemini judge LLM
+    llm = LangchainLLMWrapper(
+        ChatGoogleGenerativeAI(model="gemini-2.0-flash", google_api_key=api_key)
+    )
+
+    # Build samples by running each question through the pipeline
+    print(f"\nBuilding dataset from {len(questions)} questions...")
+    samples: list[dict] = []
+    for i, q in enumerate(questions, 1):
+        print(f"  [{i}/{len(questions)}] {q['question'][:70]}")
+        sample = _build_sample(q["question"], q.get("ground_truth", ""), api_key)
+        if sample is not None:
+            samples.append(sample)
+
+    if not samples:
         print("All questions failed — nothing to evaluate.")
         return
 
-    openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-    llm = llm_factory("gpt-4o-mini", client=openai_client, max_tokens=4096)
+    all_results: dict = {}
 
-    print(f"\nRunning RAGAS eval on {len(dataset)} samples...")
-    result = evaluate(
-        dataset,
-        metrics=[Faithfulness(), LLMContextPrecisionWithoutReference()],
+    # Reference-free eval — runs on every sample
+    all_results["reference_free"] = _run_eval(
+        samples,
+        metrics=[Faithfulness(), ContextPrecisionWithoutReference()],
         llm=llm,
+        label="Reference-Free Metrics",
     )
 
-    print("\n--- Results ---")
-    df = result.to_pandas()
-    skip_cols = {"question", "answer", "contexts", "user_input", "response", "retrieved_contexts"}
-    numeric_cols = [c for c in df.columns if c not in skip_cols]
-    if not numeric_cols:
-        print("No metric columns found. Raw columns:", list(df.columns))
-        return
-    for metric in numeric_cols:
-        score = df[metric].mean()
-        print(f"  {metric:<45} {score:.3f}")
+    # Reference eval — only samples where ground_truth was provided
+    grounded = [s for s in samples if s.get("reference")]
+    if grounded:
+        all_results["reference"] = _run_eval(
+            grounded,
+            metrics=[ContextRecall(), AnswerCorrectness()],
+            llm=llm,
+            label="Reference Metrics",
+        )
+    else:
+        print("\nNo grounded samples found — skipping ContextRecall and AnswerCorrectness.")
+        print("Fill in 'ground_truth' values in eval_questions.json to enable these metrics.")
 
     if args.output:
-        args.output.write_text(json.dumps(df.to_dict(orient="records"), indent=2))
+        args.output.write_text(json.dumps(all_results, indent=2), encoding="utf-8")
         print(f"\nFull results saved to {args.output}")
 
 

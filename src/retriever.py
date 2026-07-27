@@ -151,9 +151,10 @@ def _classify_category(query: str, client: genai.Client) -> str | None:
             system_instruction=_CLASSIFY_PROMPT,
             temperature=0,
             max_output_tokens=10,
+            thinking_config=genai_types.ThinkingConfig(thinking_budget=0),
         ),
     )
-    cat = resp.text.strip().upper()
+    cat = (resp.text or "").strip().upper()
     return cat if cat in _CATEGORIES else None
 
 
@@ -260,10 +261,11 @@ def _rewrite_query(query: str, client: genai.Client) -> str:
         config=genai_types.GenerateContentConfig(
             system_instruction=_REWRITE_PROMPT,
             temperature=0,
-            max_output_tokens=80,
+            max_output_tokens=200,
+            thinking_config=genai_types.ThinkingConfig(thinking_budget=0),
         ),
     )
-    return resp.text.strip()
+    return (resp.text or query).strip()
 
 
 def ask(query: str) -> dict:

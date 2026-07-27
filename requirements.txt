@@ -28,3 +28,4 @@ python-dotenv==1.1.0
 # Evaluation
 ragas
 datasets
+langchain-google-genai>=2.0.0

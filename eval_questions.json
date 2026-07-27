@@ -1,0 +1,632 @@
+[
+  {
+    "question": "What tumbling skills are allowed at Level 1?",
+    "ground_truth": "",
+    "category": "TUMBLING",
+    "level": 1
+  },
+  {
+    "question": "What tumbling skills are legal at Level 2?",
+    "ground_truth": "",
+    "category": "TUMBLING",
+    "level": 2
+  },
+  {
+    "question": "What tumbling is allowed at Level 3?",
+    "ground_truth": "",
+    "category": "TUMBLING",
+    "level": 3
+  },
+  {
+    "question": "What tumbling skills can I do at Level 4?",
+    "ground_truth": "",
+    "category": "TUMBLING",
+    "level": 4
+  },
+  {
+    "question": "Is a back walkover legal at Level 1?",
+    "ground_truth": "",
+    "category": "TUMBLING",
+    "level": 1
+  },
+  {
+    "question": "Is a back handspring legal at Level 1?",
+    "ground_truth": "",
+    "category": "TUMBLING",
+    "level": 1
+  },
+  {
+    "question": "Is a back handspring legal at Level 2?",
+    "ground_truth": "",
+    "category": "TUMBLING",
+    "level": 2
+  },
+  {
+    "question": "Is a standing back tuck legal at Level 3?",
+    "ground_truth": "",
+    "category": "TUMBLING",
+    "level": 3
+  },
+  {
+    "question": "Is a running back tuck legal at Level 3?",
+    "ground_truth": "",
+    "category": "TUMBLING",
+    "level": 3
+  },
+  {
+    "question": "Is a layout legal at Level 4?",
+    "ground_truth": "",
+    "category": "TUMBLING",
+    "level": 4
+  },
+  {
+    "question": "Is a full twisting layout legal at Level 5?",
+    "ground_truth": "",
+    "category": "TUMBLING",
+    "level": 5
+  },
+  {
+    "question": "What is the first level where a back tuck is allowed as standing tumbling?",
+    "ground_truth": "",
+    "category": "TUMBLING",
+    "level": null
+  },
+  {
+    "question": "Can a Level 1 athlete do a cartwheel?",
+    "ground_truth": "",
+    "category": "TUMBLING",
+    "level": 1
+  },
+  {
+    "question": "Is a round off back handspring allowed at Level 2?",
+    "ground_truth": "",
+    "category": "TUMBLING",
+    "level": 2
+  },
+  {
+    "question": "Is connected tumbling allowed at Level 3?",
+    "ground_truth": "",
+    "category": "TUMBLING",
+    "level": 3
+  },
+  {
+    "question": "Is aerial tumbling allowed at Level 1?",
+    "ground_truth": "",
+    "category": "TUMBLING",
+    "level": 1
+  },
+  {
+    "question": "What level is a double full first allowed?",
+    "ground_truth": "",
+    "category": "TUMBLING",
+    "level": null
+  },
+  {
+    "question": "Is a toe touch back handspring legal at Level 3?",
+    "ground_truth": "",
+    "category": "TUMBLING",
+    "level": 3
+  },
+  {
+    "question": "Can I do a front walkover at Level 2?",
+    "ground_truth": "",
+    "category": "TUMBLING",
+    "level": 2
+  },
+  {
+    "question": "Is a whip back handspring legal at Level 4?",
+    "ground_truth": "",
+    "category": "TUMBLING",
+    "level": 4
+  },
+  {
+    "question": "Is a spotter required for a prep level stunt at Level 1?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 1
+  },
+  {
+    "question": "Is a spotter required for extended stunts at Level 2?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 2
+  },
+  {
+    "question": "At what level is a spotter no longer required for prep level stunts?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": null
+  },
+  {
+    "question": "Do single-based stunts with multiple top persons require a spotter?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": null
+  },
+  {
+    "question": "Is a spotter required for a shoulder sit at Level 1?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 1
+  },
+  {
+    "question": "What stunt positions require a spotter at Level 2?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 2
+  },
+  {
+    "question": "Is a backspot required for all stunts at Level 3?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 3
+  },
+  {
+    "question": "What are the spotter requirements at Level 4?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 4
+  },
+  {
+    "question": "Can I do an extended single leg stunt at Level 2?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 2
+  },
+  {
+    "question": "Is a prep level stunt legal at Level 1?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 1
+  },
+  {
+    "question": "Is an extended two leg stunt legal at Level 2?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 2
+  },
+  {
+    "question": "At what level is an above prep level single leg stunt first allowed?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": null
+  },
+  {
+    "question": "Can I do a full extension single leg stunt at Level 1?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 1
+  },
+  {
+    "question": "Is a walk up shoulder stand legal at Level 1?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 1
+  },
+  {
+    "question": "What is the maximum stunt height allowed at Level 1?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 1
+  },
+  {
+    "question": "How much twist is allowed in a stunt at Level 1?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 1
+  },
+  {
+    "question": "How much twist is allowed in a stunt at Level 2?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 2
+  },
+  {
+    "question": "How much twist is allowed to prep level or below at Level 3?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 3
+  },
+  {
+    "question": "Is a full twist to extended single leg legal at Level 3?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 3
+  },
+  {
+    "question": "How many twists are allowed to extended single leg at Level 4?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 4
+  },
+  {
+    "question": "Is a double twist to prep level legal at Level 5?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 5
+  },
+  {
+    "question": "Are inversions allowed at Level 1?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 1
+  },
+  {
+    "question": "What inversions are allowed at Level 2?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 2
+  },
+  {
+    "question": "What inversions are legal at Level 3?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 3
+  },
+  {
+    "question": "Is an extended inversion legal at Level 4?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 4
+  },
+  {
+    "question": "Can a flyer be inverted at Level 1?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 1
+  },
+  {
+    "question": "Is a handstand load-in legal at Level 3?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 3
+  },
+  {
+    "question": "What is the rule for ground level inversions at Level 2?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 2
+  },
+  {
+    "question": "Is a cartwheel-style transition inversion allowed at Level 3?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 3
+  },
+  {
+    "question": "Are release moves allowed at Level 1?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 1
+  },
+  {
+    "question": "What release moves are legal at Level 2?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 2
+  },
+  {
+    "question": "What are the height and skill conditions for a release move at Level 3?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 3
+  },
+  {
+    "question": "Is a helicopter legal at Level 3?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 3
+  },
+  {
+    "question": "Can a release move involve an inversion at Level 3?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 3
+  },
+  {
+    "question": "Are downward inversions allowed at Level 1?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 1
+  },
+  {
+    "question": "What are the rules for downward inversions at Level 3?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 3
+  },
+  {
+    "question": "How many catchers are required for a downward inversion at Level 3?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 3
+  },
+  {
+    "question": "Is a pancake-style two leg downward inversion allowed at Level 3?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 3
+  },
+  {
+    "question": "Is it legal for a stunt to pass over another stunt at Level 4?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 4
+  },
+  {
+    "question": "Can athletes pass under a stunt at Level 1?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 1
+  },
+  {
+    "question": "What level allows a stunt to go over another stunt?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": null
+  },
+  {
+    "question": "Is a basket toss legal at Level 1?",
+    "ground_truth": "",
+    "category": "TOSSES",
+    "level": 1
+  },
+  {
+    "question": "Is a basket toss legal at Level 2?",
+    "ground_truth": "",
+    "category": "TOSSES",
+    "level": 2
+  },
+  {
+    "question": "Is a basket toss legal at Level 3?",
+    "ground_truth": "",
+    "category": "TOSSES",
+    "level": 3
+  },
+  {
+    "question": "What is the first level where a basket toss is allowed?",
+    "ground_truth": "",
+    "category": "TOSSES",
+    "level": null
+  },
+  {
+    "question": "Is a twisting basket toss legal at Level 3?",
+    "ground_truth": "",
+    "category": "TOSSES",
+    "level": 3
+  },
+  {
+    "question": "Is a helicopter toss legal at Level 3?",
+    "ground_truth": "",
+    "category": "TOSSES",
+    "level": 3
+  },
+  {
+    "question": "What level is a helicopter toss first allowed?",
+    "ground_truth": "",
+    "category": "TOSSES",
+    "level": null
+  },
+  {
+    "question": "What tosses are allowed at Level 2?",
+    "ground_truth": "",
+    "category": "TOSSES",
+    "level": 2
+  },
+  {
+    "question": "How many catchers are required for a basket toss?",
+    "ground_truth": "",
+    "category": "TOSSES",
+    "level": null
+  },
+  {
+    "question": "Can a flyer do a toe touch during a basket toss at Level 3?",
+    "ground_truth": "",
+    "category": "TOSSES",
+    "level": 3
+  },
+  {
+    "question": "Is a pike position basket toss legal at Level 3?",
+    "ground_truth": "",
+    "category": "TOSSES",
+    "level": 3
+  },
+  {
+    "question": "Are twisting tosses allowed at Level 4?",
+    "ground_truth": "",
+    "category": "TOSSES",
+    "level": 4
+  },
+  {
+    "question": "Can a toss involve an inversion at Level 4?",
+    "ground_truth": "",
+    "category": "TOSSES",
+    "level": 4
+  },
+  {
+    "question": "What is the maximum pyramid height at Level 1?",
+    "ground_truth": "",
+    "category": "PYRAMIDS",
+    "level": 1
+  },
+  {
+    "question": "Can a pyramid be two high at Level 2?",
+    "ground_truth": "",
+    "category": "PYRAMIDS",
+    "level": 2
+  },
+  {
+    "question": "Is an extended top person in a pyramid legal at Level 2?",
+    "ground_truth": "",
+    "category": "PYRAMIDS",
+    "level": 2
+  },
+  {
+    "question": "What is the maximum pyramid height at Level 2?",
+    "ground_truth": "",
+    "category": "PYRAMIDS",
+    "level": 2
+  },
+  {
+    "question": "Are inversions allowed in pyramids at Level 2?",
+    "ground_truth": "",
+    "category": "PYRAMIDS",
+    "level": 2
+  },
+  {
+    "question": "What bracing rules apply to pyramids at Level 3?",
+    "ground_truth": "",
+    "category": "PYRAMIDS",
+    "level": 3
+  },
+  {
+    "question": "Can connected stunts at extension touch each other at Level 2?",
+    "ground_truth": "",
+    "category": "PYRAMIDS",
+    "level": 2
+  },
+  {
+    "question": "Is a supported inversion in a pyramid legal at Level 3?",
+    "ground_truth": "",
+    "category": "PYRAMIDS",
+    "level": 3
+  },
+  {
+    "question": "What pyramid skills are allowed at Level 1?",
+    "ground_truth": "",
+    "category": "PYRAMIDS",
+    "level": 1
+  },
+  {
+    "question": "Can a top person in a pyramid be above extension at Level 4?",
+    "ground_truth": "",
+    "category": "PYRAMIDS",
+    "level": 4
+  },
+  {
+    "question": "Is a two-high pyramid with a braced top person legal at Level 3?",
+    "ground_truth": "",
+    "category": "PYRAMIDS",
+    "level": 3
+  },
+  {
+    "question": "What is the difference between a pyramid and connected stunts?",
+    "ground_truth": "",
+    "category": "PYRAMIDS",
+    "level": null
+  },
+  {
+    "question": "Is a cradle dismount legal at Level 1?",
+    "ground_truth": "",
+    "category": "DISMOUNTS",
+    "level": 1
+  },
+  {
+    "question": "What dismounts are allowed at Level 1?",
+    "ground_truth": "",
+    "category": "DISMOUNTS",
+    "level": 1
+  },
+  {
+    "question": "Is a twisting dismount legal at Level 3?",
+    "ground_truth": "",
+    "category": "DISMOUNTS",
+    "level": 3
+  },
+  {
+    "question": "Is a full twisting cradle legal at Level 4?",
+    "ground_truth": "",
+    "category": "DISMOUNTS",
+    "level": 4
+  },
+  {
+    "question": "What level allows twisting dismounts from extension?",
+    "ground_truth": "",
+    "category": "DISMOUNTS",
+    "level": null
+  },
+  {
+    "question": "Can I dismount straight to the ground at Level 1?",
+    "ground_truth": "",
+    "category": "DISMOUNTS",
+    "level": 1
+  },
+  {
+    "question": "Is a pop cradle from extension legal at Level 2?",
+    "ground_truth": "",
+    "category": "DISMOUNTS",
+    "level": 2
+  },
+  {
+    "question": "Is a log roll dismount legal at Level 3?",
+    "ground_truth": "",
+    "category": "DISMOUNTS",
+    "level": 3
+  },
+  {
+    "question": "What is an inversion in cheerleading?",
+    "ground_truth": "",
+    "category": null,
+    "level": null
+  },
+  {
+    "question": "What is a bracer?",
+    "ground_truth": "",
+    "category": null,
+    "level": null
+  },
+  {
+    "question": "What does prep level mean?",
+    "ground_truth": "",
+    "category": null,
+    "level": null
+  },
+  {
+    "question": "What is a basket toss?",
+    "ground_truth": "",
+    "category": "TOSSES",
+    "level": null
+  },
+  {
+    "question": "What is a backspot and what is their role?",
+    "ground_truth": "",
+    "category": null,
+    "level": null
+  },
+  {
+    "question": "What is a cupie stunt?",
+    "ground_truth": "",
+    "category": null,
+    "level": null
+  },
+  {
+    "question": "What is a release move?",
+    "ground_truth": "",
+    "category": null,
+    "level": null
+  },
+  {
+    "question": "Can I do a round off back handspring back tuck at Level 3?",
+    "ground_truth": "",
+    "category": "TUMBLING",
+    "level": 3
+  },
+  {
+    "question": "Is it legal to build to extension then do a full twist to cradle at Level 4?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 4
+  },
+  {
+    "question": "Can I sponge load to prep then walk up to extension at Level 2?",
+    "ground_truth": "",
+    "category": "STUNTS",
+    "level": 2
+  },
+  {
+    "question": "Is a basket toss where the flyer does a toe touch then cradles legal at Level 3?",
+    "ground_truth": "",
+    "category": "TOSSES",
+    "level": 3
+  }
+]
